@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //initialize the variable
+        //initialize the variables
         studentName = findViewById(R.id.txvstudentName);
         courseFees = findViewById(R.id.txvCourseFees);
         courseHours = findViewById(R.id.txvCourseHours);
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         spinnerCourses.setOnItemSelectedListener(new SpinnersEvents());
         accommodations.setOnCheckedChangeListener(new CheckboxListeners());
         medInsurance.setOnCheckedChangeListener(new CheckboxListeners());
-
         graduate.setOnClickListener(new ButtonEvents());
         underGraduate.setOnClickListener(new ButtonEvents());
 
@@ -67,21 +66,25 @@ public class MainActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkHoursLimit()) {
-                    addedCourses.add(selectedCourse);
-                    finalTotalFees += selectedCourse.getFees();
-                    finalTotalHours += selectedCourse.getHours();
-                    totalFees.setText("$ " + finalTotalFees);
-                    totalHours.setText(finalTotalHours + "  hours/week");
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "You can't add this course. Maximum hours limit exceed!", Toast.LENGTH_LONG).show();
+                //Check if already added course then show a message else add the course
+                if(addedCourses.contains(selectedCourse)){
+                    Toast.makeText(MainActivity.this, "This Course Already Added. Choose Another Course!", Toast.LENGTH_LONG).show();
+                }else {
+                    if (checkHoursLimit()) {//check hourly limit for graduate/undergraduate
+                        addedCourses.add(selectedCourse);
+                        finalTotalFees += selectedCourse.getFees();
+                        finalTotalHours += selectedCourse.getHours();
+                        totalFees.setText("$ " + finalTotalFees);
+                        totalHours.setText(finalTotalHours + "  hours/week");
+                    } else {
+                        Toast.makeText(MainActivity.this, "You can't add this course. Maximum hours limit exceed!", Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
     }
 
-    // Check buttons method for Accomodation & MedicalInsurance
+    // Check buttons method for Accommodation & MedicalInsurance
     public class CheckboxListeners implements CompoundButton.OnCheckedChangeListener{
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -101,9 +104,10 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-            totalFees.setText("$ " + finalTotalFees);
+            totalFees.setText("$ " + String.format("%.0f", finalTotalFees));
         }
     }
+
 
     // function to change course from spinner
     public class SpinnersEvents implements AdapterView.OnItemSelectedListener{
@@ -118,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     // function to fill the data
     public void fillData() {
         courseList.add(new Course(courseNames[0], 1300, 6));
@@ -127,15 +132,16 @@ public class MainActivity extends AppCompatActivity {
         courseList.add(new Course(courseNames[4], 1000, 4));
     }
 
+
     //function to check total hours limit for graduate & ungraduate
     private boolean checkHoursLimit() {
-        if (graduate.isChecked()) {
+        if (graduate.isChecked()) { // up to 21 hours for graduate
             if (finalTotalHours + selectedCourse.getHours() <= 21)
                 return true;
             else
                 return false;
         }
-        else {
+        else { // up to 19 hours allowed for underGraduate
             if (finalTotalHours + selectedCourse.getHours() <= 19)
                 return true;
             else
@@ -143,7 +149,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //function to reset all courses when change graduate to undergraduate or vice versa
+
+    //function to reset all courses selected when change from graduate to undergraduate or vice versa
     public class ButtonEvents implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -175,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
                     totalFees.setText("$ " + String.format("%.0f", finalTotalFees));
                     totalHours.setText(finalTotalHours + "  hours/week");
                     break;
-
             }
         }
     }
